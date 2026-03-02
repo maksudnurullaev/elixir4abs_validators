@@ -23,7 +23,7 @@ defmodule Elixir4ABS.AccountValidatorTest do
       {prefix, [_k | suffix]} = Enum.split(acc_digits, 8)
       seq24 = digits_from_string(mfo) ++ prefix ++ suffix
       key = AccountValidator.calculate_k14(seq24)
-      account = prefix ++ [key] ++ suffix |> Enum.join()
+      account = (prefix ++ [key] ++ suffix) |> Enum.join()
       assert AccountValidator.valid_account?(mfo, account)
     end
 
