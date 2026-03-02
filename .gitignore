@@ -4,6 +4,9 @@
 /erl_crash.dump
 *.ez
 
+# Serena
+/.serena/
+
 # Phoenix
 /node_modules/
 /priv/static/
