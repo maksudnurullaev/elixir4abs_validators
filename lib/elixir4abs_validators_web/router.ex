@@ -13,6 +13,10 @@ defmodule Elixir4absValidatorsWeb.Router do
   scope "/", Elixir4absValidatorsWeb do
     pipe_through :browser
 
-    live "/", AccountValidatorLive
+    live "/",                   HomeLive
+    live "/validators/account", AccountValidatorLive
+
+    live "/rules",          RulesIndexLive
+    live "/rules/:ruleset", RulesViewerLive
   end
 end

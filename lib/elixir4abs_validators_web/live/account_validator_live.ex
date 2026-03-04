@@ -94,6 +94,8 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
     <div class="min-h-screen flex items-center justify-center p-4">
       <div class="w-full max-w-lg bg-white rounded-2xl shadow-md p-8">
 
+        <a href={~p"/"} class="block text-sm text-blue-600 hover:underline mb-4">← На главную</a>
+
         <h1 class="text-2xl font-bold text-gray-800 text-center mb-1">
           Валидатор счётов УзБ
         </h1>

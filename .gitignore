@@ -42,3 +42,6 @@
 
 # ElixirLS
 .elixir_ls/
+
+# NMK
+/elixir4abs_docs/
