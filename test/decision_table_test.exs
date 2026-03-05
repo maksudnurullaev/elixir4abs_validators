@@ -139,6 +139,27 @@ defmodule Elixir4ABS.DecisionTableTest do
     end
   end
 
+  # ── No-match fallback ────────────────────────────────────────────────────────
+
+  describe "catch-all fallback clause" do
+    test "CreditScoring: пробел ddn=0.6 + score=650 не покрыт ни одним правилом" do
+      # Rule 3 требует score >= 700, rule 4 требует ddn >= 0.7, rule 5 требует score <= 599
+      assert CreditScoring.decide(%{ddn_ratio: 0.6, credit_score: 650}) ==
+               {:error, :no_match}
+    end
+
+    test "MessageRouting: high-priority + available — пробел в таблице" do
+      # П1 требует priority=normal, П5 требует dest=unavailable
+      assert MessageRouting.decide(%{priority: "high", dest_status: "available", retry_count: 0}) ==
+               {:error, :no_match}
+    end
+
+    test "LoanOverdue: days=0 + no restructuring + balance=false — не описано в таблице" do
+      assert LoanOverdue.decide(%{days_overdue: 0, restructuring: false, balance_sufficient: false}) ==
+               {:error, :no_match}
+    end
+  end
+
   # ── CBM.LoanOverdue ──────────────────────────────────────────────────────────
 
   describe "LoanOverdue.decide/1" do

@@ -84,6 +84,9 @@ defmodule Elixir4ABS.DecisionTable do
       unquote_splicing(clauses)
 
       @doc false
+      def unquote(name)(_params), do: {:error, :no_match}
+
+      @doc false
       def __dt_rules_meta__, do: unquote(escaped)
     end
   end

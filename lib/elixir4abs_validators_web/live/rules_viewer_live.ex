@@ -78,10 +78,9 @@ defmodule Elixir4absValidatorsWeb.RulesViewerLive do
       {{:error, "Заполните все поля корректно"}, nil}
     else
       result =
-        try do
-          {:ok, apply(module, :decide, [facts])}
-        rescue
-          FunctionClauseError -> {:error, "Ни одно правило не подошло"}
+        case apply(module, :decide, [facts]) do
+          {:error, :no_match} -> {:error, "Ни одно правило не подошло"}
+          map                 -> {:ok, map}
         end
 
       input_names = Enum.map(input_configs, &String.to_existing_atom(&1.name))
