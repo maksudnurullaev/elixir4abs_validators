@@ -7,7 +7,10 @@ defmodule Elixir4absValidatorsWeb.RulesViewerLive do
   def mount(%{"ruleset" => key}, _session, socket) do
     case Registry.get(key) do
       nil ->
-        {:ok, push_navigate(socket, to: ~p"/rules")}
+        {:ok,
+         socket
+         |> put_flash(:error, "Таблица решений «#{key}» не найдена.")
+         |> push_navigate(to: ~p"/")}
 
       config ->
         n_inputs = length(config.inputs)

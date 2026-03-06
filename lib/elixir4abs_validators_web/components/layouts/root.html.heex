@@ -10,6 +10,41 @@
     </script>
   </head>
   <body class="bg-gray-100 min-h-screen antialiased">
+
+    <%!-- Flash: error / warning --%>
+    <%= if msg = Phoenix.Flash.get(@flash, :error) do %>
+      <div
+        id="flash-error"
+        class="fixed top-4 inset-x-0 z-50 flex justify-center px-4 pointer-events-none"
+      >
+        <div class="pointer-events-auto flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 rounded-xl px-5 py-3 shadow-lg text-sm max-w-lg w-full">
+          <span class="text-lg leading-none">⚠</span>
+          <span class="flex-1"><%= msg %></span>
+          <button
+            class="text-red-400 hover:text-red-600 text-lg leading-none font-bold"
+            onclick="document.getElementById('flash-error').remove()"
+          >×</button>
+        </div>
+      </div>
+    <% end %>
+
+    <%!-- Flash: info --%>
+    <%= if msg = Phoenix.Flash.get(@flash, :info) do %>
+      <div
+        id="flash-info"
+        class="fixed top-4 inset-x-0 z-50 flex justify-center px-4 pointer-events-none"
+      >
+        <div class="pointer-events-auto flex items-center gap-3 bg-blue-50 border border-blue-200 text-blue-700 rounded-xl px-5 py-3 shadow-lg text-sm max-w-lg w-full">
+          <span class="text-lg leading-none">ℹ</span>
+          <span class="flex-1"><%= msg %></span>
+          <button
+            class="text-blue-400 hover:text-blue-600 text-lg leading-none font-bold"
+            onclick="document.getElementById('flash-info').remove()"
+          >×</button>
+        </div>
+      </div>
+    <% end %>
+
     {@inner_content}
   </body>
 </html>

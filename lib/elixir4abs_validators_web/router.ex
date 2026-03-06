@@ -18,5 +18,7 @@ defmodule Elixir4absValidatorsWeb.Router do
 
     live "/rules",          RulesIndexLive
     live "/rules/:ruleset", RulesViewerLive
+
+    live "/*path", NotFoundLive
   end
 end
