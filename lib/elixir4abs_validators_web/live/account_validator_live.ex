@@ -3,20 +3,36 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
 
   alias Elixir4ABS.AccountValidator
 
+  @examples [
+    %{label: "Депозит ФЛ",  mfo: "00444", account: "20208000312345678001",
+      hint: "Asaka Bank · балансовый 20208 · UZS"},
+    %{label: "Касса банка", mfo: "00444", account: "10101000000000000001",
+      hint: "Asaka Bank · балансовый 10101 · UZS"},
+    %{label: "Счёт ЮЛ",     mfo: "00774", account: "23001000712345678001",
+      hint: "Hamkorbank · балансовый 23001 · UZS"}
+  ]
+
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, mfo: "", account: "", method: "m2", breakdown: nil)}
+    {:ok, assign(socket, mfo: "", account: "", breakdown: nil, examples: @examples)}
   end
 
   @impl true
-  def handle_event("validate", %{"mfo" => mfo, "account" => account, "method" => method}, socket) do
-    breakdown = build_breakdown(mfo, account, method)
-    {:noreply, assign(socket, mfo: mfo, account: account, method: method, breakdown: breakdown)}
+  def handle_event("use_example", %{"mfo" => mfo, "account" => account}, socket) do
+    breakdown = build_breakdown(mfo, account)
+    {:noreply, assign(socket, mfo: mfo, account: account, breakdown: breakdown)}
+  end
+
+  @impl true
+  def handle_event("validate", %{"mfo" => mfo, "account" => account}, socket) do
+    account = String.replace(account, " ", "")
+    breakdown = build_breakdown(mfo, account)
+    {:noreply, assign(socket, mfo: mfo, account: account, breakdown: breakdown)}
   end
 
   # ── Breakdown ──────────────────────────────────────────────────────────────
 
-  defp build_breakdown(mfo, account, method)
+  defp build_breakdown(mfo, account)
        when byte_size(mfo) == 5 and byte_size(account) == 20 do
     if all_digits?(mfo) and all_digits?(account) do
       balance_code  = String.slice(account, 0, 5)
@@ -28,13 +44,7 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
       mfo_digits = digits_from_string(mfo)
       {prefix, [_k | suffix]} = Enum.split(acc_digits, 8)
 
-      calculated_key =
-        case method do
-          "m1" ->
-            AccountValidator.calculate_key_m1(mfo_digits ++ prefix ++ [0] ++ suffix)
-          _ ->
-            AccountValidator.calculate_k14(mfo_digits ++ prefix ++ suffix)
-        end
+      calculated_key = AccountValidator.calculate_k14(mfo_digits ++ prefix ++ suffix)
 
       %{
         mfo:            mfo,
@@ -52,7 +62,7 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
     end
   end
 
-  defp build_breakdown(_, _, _), do: nil
+  defp build_breakdown(_, _), do: nil
 
   # ── Balance account descriptions ───────────────────────────────────────────
 
@@ -81,6 +91,14 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
 
   # ── Helpers ────────────────────────────────────────────────────────────────
 
+  defp format_account(""), do: ""
+  defp format_account(account) do
+    account
+    |> String.graphemes()
+    |> Enum.chunk_every(4)
+    |> Enum.map_join(" ", &Enum.join/1)
+  end
+
   defp all_digits?(str), do: String.match?(str, ~r/^\d+$/)
 
   defp digits_from_string(str),
@@ -99,11 +117,30 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
         <h1 class="text-2xl font-bold text-gray-800 text-center mb-1">
           Валидатор счётов УзБ
         </h1>
-        <p class="text-sm text-gray-500 text-center mb-8">
+        <p class="text-sm text-gray-500 text-center mb-6">
           Расшифровка и проверка 20-значного банковского номера
         </p>
 
-        <form phx-change="validate" class="space-y-4">
+        <%!-- Примеры --%>
+        <div class="mb-6">
+          <p class="text-xs font-medium text-gray-500 mb-2">Примеры для проверки:</p>
+          <div class="flex flex-wrap gap-2">
+            <%= for ex <- @examples do %>
+              <button
+                type="button"
+                phx-click="use_example"
+                phx-value-mfo={ex.mfo}
+                phx-value-account={ex.account}
+                title={ex.hint}
+                class="text-xs px-3 py-1.5 rounded-full border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:border-blue-400 transition"
+              >
+                <%= ex.label %>
+              </button>
+            <% end %>
+          </div>
+        </div>
+
+        <form phx-change="validate" phx-submit="validate" class="space-y-4">
           <div class="flex gap-3">
             <div class="w-36 shrink-0">
               <label class="block text-xs font-medium text-gray-600 mb-1">
@@ -120,24 +157,20 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
                 Номер счёта <span class="text-gray-400">(20 цифр)</span>
               </label>
               <input
-                type="text" name="account" value={@account} maxlength="20"
-                placeholder="20208000X12345678001" autocomplete="off"
+                type="text" name="account" value={format_account(@account)} maxlength="24"
+                placeholder="2020 8000 X123 4567 8001" autocomplete="off"
+                phx-hook="AccountNumberMask" id="account-input"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 font-mono text-base tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
 
-          <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1">Алгоритм проверки</label>
-            <select name="method" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="m2" selected={@method == "m2"}>
-                Метод 2 — mod 11 (межбанковский клиринг ЦБ)
-              </option>
-              <option value="m1" selected={@method == "m1"}>
-                Метод 1 — весовые коэф. 7·1·3, mod 10
-              </option>
-            </select>
-          </div>
+          <button
+            type="submit"
+            class="w-full bg-blue-600 text-white font-semibold rounded-lg py-2 hover:bg-blue-700 transition"
+          >
+            Проверить
+          </button>
         </form>
 
         <%= if @breakdown do %>
@@ -222,12 +255,7 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
                   <% end %>
                 </dt>
                 <dd class="mt-0.5 text-gray-500">
-                  Рассчитан по
-                  <%= if @method == "m1" do %>
-                    <strong>Методу 1</strong> — весовые коэффициенты 7·1·3 (mod 10).
-                  <% else %>
-                    <strong>Методу 2</strong> — сумма произведений соседних пар, mod 11.
-                  <% end %>
+                  Рассчитан по <strong>Методу 2</strong> — сумма произведений соседних пар, mod 11.
                   Защищает от ошибок при вводе номера.
                 </dd>
               </div>

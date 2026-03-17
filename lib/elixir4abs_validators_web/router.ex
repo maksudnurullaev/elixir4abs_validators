@@ -14,7 +14,8 @@ defmodule Elixir4absValidatorsWeb.Router do
     pipe_through :browser
 
     live "/",                   HomeLive
-    live "/validators/account", AccountValidatorLive
+    live "/validators/account",      AccountValidatorLive
+    live "/validators/swift-pacs008", SwiftPacs008Live
 
     live "/rules",          RulesIndexLive
     live "/rules/:ruleset", RulesViewerLive

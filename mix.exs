@@ -34,7 +34,10 @@ defmodule Elixir4absValidators.MixProject do
       {:jason, "~> 1.4"},
       {:esbuild, "~> 0.8", runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.2", runtime: Mix.env() == :dev},
-      {:floki, ">= 0.30.0", only: :test}
+      {:floki, ">= 0.30.0", only: :test},
+      {:sweet_xml, "~> 0.7.4"},
+      {:decimal, "~> 2.1"},
+      {:stream_data, "~> 1.0", only: [:test, :dev]}
     ]
   end
 

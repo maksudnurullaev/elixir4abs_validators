@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.08">
+  <FIToFICstmrCdtTrf>
+    <GrpHdr>
+      <MsgId>MSG-20260317-NOIBAN</MsgId>
+      <CreDtTm>2026-03-17T10:00:00Z</CreDtTm>
+      <NbOfTxs>1</NbOfTxs>
+      <CtrlSum>500.00</CtrlSum>
+      <IntrBkSttlmDt>2026-03-17</IntrBkSttlmDt>
+    </GrpHdr>
+    <CdtTrfTxInf>
+      <PmtId>
+        <EndToEndId>E2E-20260317-NOIBAN</EndToEndId>
+      </PmtId>
+      <IntrBkSttlmAmt Ccy="RUB">500.00</IntrBkSttlmAmt>
+      <DbtrAcct>
+        <Id><!-- IBAN намеренно отсутствует --></Id>
+      </DbtrAcct>
+      <DbtrAgt>
+        <FinInstnId><BICFI>SABRRUMM</BICFI></FinInstnId>
+      </DbtrAgt>
+      <CdtrAcct>
+        <Id><IBAN>RU0204452560040702810498765432100</IBAN></Id>
+      </CdtrAcct>
+      <CdtrAgt>
+        <FinInstnId><BICFI>VTBRRUMM</BICFI></FinInstnId>
+      </CdtrAgt>
+    </CdtTrfTxInf>
+  </FIToFICstmrCdtTrf>
+</Document>

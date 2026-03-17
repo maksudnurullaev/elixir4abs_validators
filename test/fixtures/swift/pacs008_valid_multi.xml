@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.08">
+  <FIToFICstmrCdtTrf>
+    <GrpHdr>
+      <MsgId>MSG-20260317-MULTI</MsgId>
+      <CreDtTm>2026-03-17T11:00:00Z</CreDtTm>
+      <NbOfTxs>3</NbOfTxs>
+      <CtrlSum>5500.00</CtrlSum>
+      <IntrBkSttlmDt>2026-03-17</IntrBkSttlmDt>
+    </GrpHdr>
+    <CdtTrfTxInf>
+      <PmtId>
+        <EndToEndId>E2E-20260317-101</EndToEndId>
+      </PmtId>
+      <IntrBkSttlmAmt Ccy="RUB">1000.00</IntrBkSttlmAmt>
+      <Dbtr>
+        <Nm>ООО Ромашка</Nm>
+      </Dbtr>
+      <DbtrAcct>
+        <Id><IBAN>RU0204452560040702810412345678901</IBAN></Id>
+      </DbtrAcct>
+      <DbtrAgt>
+        <FinInstnId><BICFI>SABRRUMM</BICFI></FinInstnId>
+      </DbtrAgt>
+      <Cdtr>
+        <Nm>ИП Петров</Nm>
+      </Cdtr>
+      <CdtrAcct>
+        <Id><IBAN>RU0204452560040702810498765432100</IBAN></Id>
+      </CdtrAcct>
+      <CdtrAgt>
+        <FinInstnId><BICFI>VTBRRUMM</BICFI></FinInstnId>
+      </CdtrAgt>
+    </CdtTrfTxInf>
+    <CdtTrfTxInf>
+      <PmtId>
+        <EndToEndId>E2E-20260317-102</EndToEndId>
+      </PmtId>
+      <IntrBkSttlmAmt Ccy="RUB">2000.00</IntrBkSttlmAmt>
+      <DbtrAcct>
+        <Id><IBAN>RU0204452560040702810411111111111</IBAN></Id>
+      </DbtrAcct>
+      <DbtrAgt>
+        <FinInstnId><BICFI>SABRRUMM</BICFI></FinInstnId>
+      </DbtrAgt>
+      <CdtrAcct>
+        <Id><IBAN>RU0204452560040702810422222222222</IBAN></Id>
+      </CdtrAcct>
+      <CdtrAgt>
+        <FinInstnId><BICFI>SBERRUМММ</BICFI></FinInstnId>
+      </CdtrAgt>
+    </CdtTrfTxInf>
+    <CdtTrfTxInf>
+      <PmtId>
+        <EndToEndId>E2E-20260317-103</EndToEndId>
+      </PmtId>
+      <IntrBkSttlmAmt Ccy="USD">2500.00</IntrBkSttlmAmt>
+      <DbtrAcct>
+        <Id><IBAN>RU0204452560040702810433333333333</IBAN></Id>
+      </DbtrAcct>
+      <DbtrAgt>
+        <FinInstnId><BICFI>VTBRRUMM</BICFI></FinInstnId>
+      </DbtrAgt>
+      <CdtrAcct>
+        <Id><IBAN>RU0204452560040702810444444444444</IBAN></Id>
+      </CdtrAcct>
+      <CdtrAgt>
+        <FinInstnId><BICFI>GAZPRUMM</BICFI></FinInstnId>
+      </CdtrAgt>
+      <RmtInf>
+        <Ustrd>Оплата по инвойсу INV-2026-103</Ustrd>
+      </RmtInf>
+    </CdtTrfTxInf>
+  </FIToFICstmrCdtTrf>
+</Document>
