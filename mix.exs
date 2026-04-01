@@ -37,7 +37,8 @@ defmodule Elixir4absValidators.MixProject do
       {:floki, ">= 0.30.0", only: :test},
       {:sweet_xml, "~> 0.7.4"},
       {:decimal, "~> 2.1"},
-      {:stream_data, "~> 1.0", only: [:test, :dev]}
+      {:stream_data, "~> 1.0", only: [:test, :dev]},
+      {:eqrcode, "~> 0.1"}
     ]
   end
 
