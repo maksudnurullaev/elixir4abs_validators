@@ -4,20 +4,35 @@ import {LiveSocket} from "phoenix_live_view"
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 
-// Хук форматирования номера счёта: вставляет пробел каждые 4 цифры при вводе
+// Форматирование номера счёта по структуре CCCCCVVVKSSSSSSSSNNN:
+// группы [5, 3, 1, 8, 3] разделяются пробелами → "CCCCC VVV K SSSSSSSS NNN"
+const ACCOUNT_GROUPS = [5, 3, 1, 8, 3]
+
+function formatAccount(digits) {
+  let result = ""
+  let pos = 0
+  for (let i = 0; i < ACCOUNT_GROUPS.length; i++) {
+    const chunk = digits.slice(pos, pos + ACCOUNT_GROUPS[i])
+    if (chunk.length === 0) break
+    if (i > 0) result += " "
+    result += chunk
+    pos += ACCOUNT_GROUPS[i]
+  }
+  return result
+}
+
 const AccountNumberMask = {
   mounted() {
     this.el.addEventListener("input", (e) => {
       const selStart = e.target.selectionStart
-      // считаем, сколько цифр стоит до курсора в текущем (ещё не отформатированном) значении
+      // сколько цифр стоит до курсора до форматирования
       const digitsBeforeCursor = e.target.value.slice(0, selStart).replace(/\D/g, "").length
 
       const raw = e.target.value.replace(/\D/g, "").slice(0, 20)
-      const formatted = raw.match(/.{1,4}/g)?.join(" ") ?? ""
+      const formatted = formatAccount(raw)
       e.target.value = formatted
 
-      // находим позицию курсора в отформатированной строке:
-      // идём по символам и отсчитываем нужное количество цифр
+      // восстанавливаем позицию курсора: отсчитываем нужное количество цифр
       let newCursor = formatted.length
       let counted = 0
       for (let i = 0; i < formatted.length; i++) {

@@ -195,7 +195,7 @@ defmodule Elixir4absValidatorsWeb.QrPaymentLive do
   def render(assigns) do
     ~H"""
     <div class="min-h-screen bg-gray-50 py-8 px-4">
-      <div class="max-w-4xl mx-auto">
+      <div class="w-full">
 
         <a href={~p"/"} class="text-sm text-blue-600 hover:underline">← На главную</a>
 

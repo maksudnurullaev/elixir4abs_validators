@@ -12,7 +12,7 @@ defmodule Elixir4absValidatorsWeb.RulesIndexLive do
   def render(assigns) do
     ~H"""
     <div class="min-h-screen bg-gray-50 p-6">
-      <div class="max-w-3xl mx-auto">
+      <div class="w-full">
 
         <a href={~p"/"} class="block text-sm text-blue-600 hover:underline mb-4">← На главную</a>
         <h1 class="text-2xl font-bold text-gray-800 mb-1">Таблицы решений</h1>

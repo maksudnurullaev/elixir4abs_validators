@@ -118,7 +118,7 @@ defmodule Elixir4absValidatorsWeb.RulesViewerLive do
   def render(assigns) do
     ~H"""
     <div class="min-h-screen bg-gray-50 p-6">
-      <div class="max-w-5xl mx-auto space-y-6">
+      <div class="w-full space-y-6">
 
         <%!-- Header --%>
         <div>

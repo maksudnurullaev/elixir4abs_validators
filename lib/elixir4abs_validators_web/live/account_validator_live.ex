@@ -35,10 +35,12 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
   defp build_breakdown(mfo, account)
        when byte_size(mfo) == 5 and byte_size(account) == 20 do
     if all_digits?(mfo) and all_digits?(account) do
-      balance_code  = String.slice(account, 0, 5)
-      currency_code = String.slice(account, 5, 3)
-      key_digit     = String.at(account, 8) |> String.to_integer()
-      unique        = String.slice(account, 9, 11)
+      # CCCCCVVVKSSSSSSSSNNN
+      balance_code  = String.slice(account, 0, 5)   # CCCCC (разряды  1– 5)
+      currency_code = String.slice(account, 5, 3)   # VVV   (разряды  6– 8)
+      key_digit     = String.at(account, 8) |> String.to_integer()  # K (разряд 9)
+      client_code   = String.slice(account, 9, 8)   # SSSSSSSS (разряды 10–17)
+      seq           = String.slice(account, 17, 3)  # NNN      (разряды 18–20)
 
       acc_digits = digits_from_string(account)
       mfo_digits = digits_from_string(mfo)
@@ -52,12 +54,12 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
         balance_desc:   balance_description(balance_code),
         currency_code:  currency_code,
         currency_desc:  currency_description(currency_code),
+        currency_iso:   currency_iso(currency_code),
         key_digit:      key_digit,
         calculated_key: calculated_key,
         key_valid:      key_digit == calculated_key,
-        unique:         unique,
-        nibd:           String.slice(unique, 0, 8),
-        seq:            String.slice(unique, 8, 3)
+        client_code:    client_code,
+        seq:            seq
       }
     end
   end
@@ -89,14 +91,30 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
   defp currency_description("756"), do: "CHF — Швейцарский франк"
   defp currency_description(code), do: "ISO 4217: #{code}"
 
+  defp currency_iso("000"), do: "UZS"
+  defp currency_iso("840"), do: "USD"
+  defp currency_iso("978"), do: "EUR"
+  defp currency_iso("643"), do: "RUB"
+  defp currency_iso("826"), do: "GBP"
+  defp currency_iso("392"), do: "JPY"
+  defp currency_iso("156"), do: "CNY"
+  defp currency_iso("756"), do: "CHF"
+  defp currency_iso(code), do: code
+
   # ── Helpers ────────────────────────────────────────────────────────────────
+
+  # Форматирование по структуре CCCCCVVVKSSSSSSSSNNN → "CCCCC VVV K SSSSSSSS NNN"
+  @account_groups [5, 3, 1, 8, 3]
 
   defp format_account(""), do: ""
   defp format_account(account) do
-    account
-    |> String.graphemes()
-    |> Enum.chunk_every(4)
-    |> Enum.map_join(" ", &Enum.join/1)
+    digits = String.graphemes(account)
+    {parts, _} =
+      Enum.reduce(@account_groups, {[], digits}, fn size, {acc, rest} ->
+        {chunk, remaining} = Enum.split(rest, size)
+        if chunk == [], do: {acc, remaining}, else: {acc ++ [Enum.join(chunk)], remaining}
+      end)
+    Enum.join(parts, " ")
   end
 
   defp all_digits?(str), do: String.match?(str, ~r/^\d+$/)
@@ -109,8 +127,8 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="min-h-screen flex items-center justify-center p-4">
-      <div class="w-full max-w-lg bg-white rounded-2xl shadow-md p-8">
+    <div class="min-h-screen bg-gray-50 p-4">
+      <div class="w-full bg-white rounded-2xl shadow-md p-8">
 
         <a href={~p"/"} class="block text-sm text-blue-600 hover:underline mb-4">← На главную</a>
 
@@ -158,7 +176,7 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
               </label>
               <input
                 type="text" name="account" value={format_account(@account)} maxlength="24"
-                placeholder="2020 8000 X123 4567 8001" autocomplete="off"
+                placeholder="20208 000 K 12345678 001" autocomplete="off"
                 phx-hook="AccountNumberMask" id="account-input"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 font-mono text-base tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -176,29 +194,37 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
         <%= if @breakdown do %>
           <div class="mt-6 border border-gray-200 rounded-xl overflow-hidden text-sm">
 
-            <%!-- Segmented visual display --%>
-            <div class="bg-gray-50 px-4 py-3 flex font-mono divide-x divide-gray-200 text-center">
-              <div class="pr-4">
-                <div class="text-xs text-gray-400 mb-1">МФО</div>
-                <div class="font-bold text-blue-600"><%= @breakdown.mfo %></div>
+            <%!-- Segmented visual display: CCCCCVVVKSSSSSSSSNNN --%>
+            <div class="bg-gray-50 px-4 py-3 font-mono text-center overflow-x-auto">
+              <div class="text-xs text-gray-400 mb-1 tracking-widest select-none">
+                CCCCC·VVV·K·SSSSSSSS·NNN
               </div>
-              <div class="px-4">
-                <div class="text-xs text-gray-400 mb-1">Баланс 1–5</div>
-                <div class="font-bold text-gray-800"><%= @breakdown.balance_code %></div>
-              </div>
-              <div class="px-4">
-                <div class="text-xs text-gray-400 mb-1">Валюта 6–8</div>
-                <div class="font-bold text-gray-800"><%= @breakdown.currency_code %></div>
-              </div>
-              <div class="px-4">
-                <div class="text-xs text-gray-400 mb-1">Ключ 9</div>
-                <div class={"font-bold #{if @breakdown.key_valid, do: "text-green-600", else: "text-red-600"}"}>
-                  <%= @breakdown.key_digit %>
+              <div class="flex divide-x divide-gray-200 min-w-max mx-auto w-fit">
+                <div class="pr-3">
+                  <div class="text-xs text-gray-400 mb-0.5">1–5 · Баланс</div>
+                  <div class="font-bold text-indigo-700"><%= @breakdown.balance_code %></div>
                 </div>
-              </div>
-              <div class="pl-4 flex-1">
-                <div class="text-xs text-gray-400 mb-1">Лицевой 10–20</div>
-                <div class="font-bold text-gray-800 tracking-wider"><%= @breakdown.unique %></div>
+                <div class="px-3">
+                  <div class="text-xs text-gray-400 mb-0.5">6–8 · Валюта</div>
+                  <div class="font-bold text-blue-700">
+                    <%= @breakdown.currency_code %>
+                    <span class="text-xs font-normal text-blue-500">(<%= @breakdown.currency_iso %>)</span>
+                  </div>
+                </div>
+                <div class="px-3">
+                  <div class="text-xs text-gray-400 mb-0.5">9 · Ключ</div>
+                  <div class={"font-bold #{if @breakdown.key_valid, do: "text-green-600", else: "text-red-600"}"}>
+                    <%= @breakdown.key_digit %>
+                  </div>
+                </div>
+                <div class="px-3">
+                  <div class="text-xs text-gray-400 mb-0.5">10–17 · Клиент</div>
+                  <div class="font-bold text-gray-800 tracking-wider"><%= @breakdown.client_code %></div>
+                </div>
+                <div class="pl-3">
+                  <div class="text-xs text-gray-400 mb-0.5">18–20 · №</div>
+                  <div class="font-bold text-gray-800"><%= @breakdown.seq %></div>
+                </div>
               </div>
             </div>
 
@@ -221,12 +247,13 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
                 </dt>
                 <dd class="mt-0.5 text-gray-500">
                   Идентифицирует конкретный филиал банка в системе ЦБ Узбекистана.
+                  Используется при расчёте контрольного ключа.
                 </dd>
               </div>
 
               <div class="px-4 py-3">
                 <dt class="font-medium text-gray-700">
-                  Разряды 1–5 — Балансовый счёт
+                  CCCCC · Разряды 1–5 — Балансовый счёт
                   <code class="ml-2 bg-gray-100 px-1 rounded text-xs"><%= @breakdown.balance_code %></code>
                 </dt>
                 <dd class="mt-0.5 text-gray-500"><%= @breakdown.balance_desc %></dd>
@@ -234,7 +261,7 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
 
               <div class="px-4 py-3">
                 <dt class="font-medium text-gray-700">
-                  Разряды 6–8 — Код валюты
+                  VVV · Разряды 6–8 — Код валюты
                   <code class="ml-2 bg-gray-100 px-1 rounded text-xs"><%= @breakdown.currency_code %></code>
                 </dt>
                 <dd class="mt-0.5 text-gray-500"><%= @breakdown.currency_desc %></dd>
@@ -242,7 +269,7 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
 
               <div class="px-4 py-3">
                 <dt class="font-medium text-gray-700">
-                  Разряд 9 — Контрольный ключ
+                  K · Разряд 9 — Контрольный ключ
                   <code class={"ml-2 px-1 rounded text-xs #{if @breakdown.key_valid, do: "bg-green-100 text-green-700", else: "bg-red-100 text-red-700"}"}>
                     <%= @breakdown.key_digit %>
                   </code>
@@ -255,27 +282,31 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
                   <% end %>
                 </dt>
                 <dd class="mt-0.5 text-gray-500">
-                  Рассчитан по <strong>Методу 2</strong> — сумма произведений соседних пар, mod 11.
-                  Защищает от ошибок при вводе номера.
+                  Рассчитан по <strong>Методу 2</strong> (сумма произведений соседних пар, mod 11)
+                  на основе МФО + CCCCC + VVV + SSSSSSSS + NNN.
+                  Защищает от ошибок при вводе номера счёта.
                 </dd>
               </div>
 
               <div class="px-4 py-3">
                 <dt class="font-medium text-gray-700">
-                  Разряды 10–20 — Лицевой счёт
-                  <code class="ml-2 bg-gray-100 px-1 rounded text-xs"><%= @breakdown.unique %></code>
+                  SSSSSSSS · Разряды 10–17 — Уникальный код клиента
+                  <code class="ml-2 bg-gray-100 px-1 rounded text-xs"><%= @breakdown.client_code %></code>
                 </dt>
-                <dd class="mt-1 text-gray-500 space-y-1">
-                  <div>
-                    Идентификатор НИББД (10–17):
-                    <code class="bg-gray-100 px-1 rounded text-xs"><%= @breakdown.nibd %></code>
-                    — уникальный регистрационный номер клиента в базе данных.
-                  </div>
-                  <div>
-                    Порядковый номер счёта (18–20):
-                    <code class="bg-gray-100 px-1 rounded text-xs"><%= @breakdown.seq %></code>
-                    — номер счёта клиента внутри данного филиала.
-                  </div>
+                <dd class="mt-0.5 text-gray-500">
+                  Уникальный 8-значный идентификатор клиента внутри банка.
+                  Один и тот же клиент имеет одинаковый код SSSSSSSS во всех своих счетах.
+                </dd>
+              </div>
+
+              <div class="px-4 py-3">
+                <dt class="font-medium text-gray-700">
+                  NNN · Разряды 18–20 — Порядковый номер счёта
+                  <code class="ml-2 bg-gray-100 px-1 rounded text-xs"><%= @breakdown.seq %></code>
+                </dt>
+                <dd class="mt-0.5 text-gray-500">
+                  Порядковый номер конкретного счёта клиента в рамках данного балансового счёта и валюты.
+                  Позволяет клиенту иметь несколько счетов одного типа.
                 </dd>
               </div>
 

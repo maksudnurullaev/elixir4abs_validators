@@ -78,7 +78,7 @@ defmodule Elixir4absValidatorsWeb.SwiftPacs008Live do
   def render(assigns) do
     ~H"""
     <div class="min-h-screen bg-gray-50 p-4">
-      <div class="max-w-3xl mx-auto">
+      <div class="w-full">
 
         <a href={~p"/"} class="inline-block text-sm text-blue-600 hover:underline mb-4">← На главную</a>
 
