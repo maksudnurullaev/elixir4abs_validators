@@ -10,6 +10,15 @@ defmodule Elixir4absValidatorsWeb.Router do
     plug :put_secure_browser_headers
   end
 
+  pipeline :api do
+    plug :accepts, ["json"]
+  end
+
+  scope "/", Elixir4absValidatorsWeb do
+    pipe_through :api
+    get "/health", HealthController, :check
+  end
+
   scope "/", Elixir4absValidatorsWeb do
     pipe_through :browser
 
