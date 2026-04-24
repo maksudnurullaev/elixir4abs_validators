@@ -23,11 +23,11 @@ defmodule Elixir4ABS.Rules.MDM.ClientLifecycle do
 
   decision_table :decide,
     inputs:  [:passport_expired, :aml_listed, :death_cert, :accounts_closed_5y],
-    outputs: [:set_inactive, :set_blocked, :set_closed_deceased, :set_archived] do
-    #           expired  aml    death  closed    inactive blocked  deceased archived
-    rule       [true,    false, false, false,    true,    false,   false,   false]  # П1 Просрочка
-    rule       [false,   true,  false, false,    false,   true,    false,   false]  # П2 Санкции
-    rule       [false,   false, true,  false,    false,   false,   true,    false]  # П3 Смерть
-    rule       [false,   false, false, true,     false,   false,   false,   true ]  # П4 Закрытие
+    outputs: [:set_inactive,     :set_blocked, :set_closed_deceased, :set_archived] do
+    #           passport_expired  aml_listed  death_cert  closed_5y   inactive  blocked   deceased  archived
+    rule [true,   false,  false,  false,  true,   false,  false,  false]  # П1 Просрочка
+    rule [false,  true,   false,  false,  false,  true,   false,  false]  # П2 Санкции
+    rule [false,  false,  true,   false,  false,  false,  true,   false]  # П3 Смерть
+    rule [false,  false,  false,  true,   false,  false,  false,  true ]  # П4 Закрытие
   end
 end

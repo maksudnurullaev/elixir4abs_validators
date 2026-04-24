@@ -9,7 +9,8 @@ config :elixir4abs_validators, Elixir4absValidatorsWeb.Endpoint,
   debug_errors: true,
   secret_key_base: "localdevsecretkeybase64charsminimumrequiredforphoenix12345678901234",
   watchers: [
-    esbuild: {Esbuild, :install_and_run, [:elixir4abs_validators, ~w(--sourcemap=inline --watch)]},
+    esbuild:
+      {Esbuild, :install_and_run, [:elixir4abs_validators, ~w(--sourcemap=inline --watch)]},
     tailwind: {Tailwind, :install_and_run, [:elixir4abs_validators, ~w(--watch)]}
   ],
   live_reload: [

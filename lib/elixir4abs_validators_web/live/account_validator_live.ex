@@ -4,12 +4,24 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
   alias Elixir4ABS.AccountValidator
 
   @examples [
-    %{label: "Депозит ФЛ",  mfo: "00444", account: "20208000312345678001",
-      hint: "Asaka Bank · балансовый 20208 · UZS"},
-    %{label: "Касса банка", mfo: "00444", account: "10101000000000000001",
-      hint: "Asaka Bank · балансовый 10101 · UZS"},
-    %{label: "Счёт ЮЛ",     mfo: "00774", account: "23001000712345678001",
-      hint: "Hamkorbank · балансовый 23001 · UZS"}
+    %{
+      label: "Депозит ФЛ",
+      mfo: "00444",
+      account: "20208000312345678001",
+      hint: "Asaka Bank · балансовый 20208 · UZS"
+    },
+    %{
+      label: "Касса банка",
+      mfo: "00444",
+      account: "10101000000000000001",
+      hint: "Asaka Bank · балансовый 10101 · UZS"
+    },
+    %{
+      label: "Счёт ЮЛ",
+      mfo: "00774",
+      account: "23001000712345678001",
+      hint: "Hamkorbank · балансовый 23001 · UZS"
+    }
   ]
 
   @impl true
@@ -36,11 +48,16 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
        when byte_size(mfo) == 5 and byte_size(account) == 20 do
     if all_digits?(mfo) and all_digits?(account) do
       # CCCCCVVVKSSSSSSSSNNN
-      balance_code  = String.slice(account, 0, 5)   # CCCCC (разряды  1– 5)
-      currency_code = String.slice(account, 5, 3)   # VVV   (разряды  6– 8)
-      key_digit     = String.at(account, 8) |> String.to_integer()  # K (разряд 9)
-      client_code   = String.slice(account, 9, 8)   # SSSSSSSS (разряды 10–17)
-      seq           = String.slice(account, 17, 3)  # NNN      (разряды 18–20)
+      # CCCCC (разряды  1– 5)
+      balance_code = String.slice(account, 0, 5)
+      # VVV   (разряды  6– 8)
+      currency_code = String.slice(account, 5, 3)
+      # K (разряд 9)
+      key_digit = String.at(account, 8) |> String.to_integer()
+      # SSSSSSSS (разряды 10–17)
+      client_code = String.slice(account, 9, 8)
+      # NNN      (разряды 18–20)
+      seq = String.slice(account, 17, 3)
 
       acc_digits = digits_from_string(account)
       mfo_digits = digits_from_string(mfo)
@@ -49,17 +66,17 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
       calculated_key = AccountValidator.calculate_k14(mfo_digits ++ prefix ++ suffix)
 
       %{
-        mfo:            mfo,
-        balance_code:   balance_code,
-        balance_desc:   balance_description(balance_code),
-        currency_code:  currency_code,
-        currency_desc:  currency_description(currency_code),
-        currency_iso:   currency_iso(currency_code),
-        key_digit:      key_digit,
+        mfo: mfo,
+        balance_code: balance_code,
+        balance_desc: balance_description(balance_code),
+        currency_code: currency_code,
+        currency_desc: currency_description(currency_code),
+        currency_iso: currency_iso(currency_code),
+        key_digit: key_digit,
         calculated_key: calculated_key,
-        key_valid:      key_digit == calculated_key,
-        client_code:    client_code,
-        seq:            seq
+        key_valid: key_digit == calculated_key,
+        client_code: client_code,
+        seq: seq
       }
     end
   end
@@ -69,14 +86,20 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
   # ── Balance account descriptions ───────────────────────────────────────────
 
   defp balance_description("10101"), do: "Касса банка — наличные денежные средства"
-  defp balance_description("20208"), do: "Депозиты до востребования физических лиц (карточные счета)"
+
+  defp balance_description("20208"),
+    do: "Депозиты до востребования физических лиц (карточные счета)"
+
   defp balance_description("20210"), do: "Текущие счета физических лиц в иностранной валюте"
   defp balance_description("23001"), do: "Текущие счета юридических лиц (национальная валюта)"
   defp balance_description("23101"), do: "Текущие счета бюджетных организаций"
   defp balance_description("23120"), do: "Транзитные счета для операций с пластиковыми картами"
   defp balance_description(<<"204", _::binary>>), do: "Сберегательные вклады физических лиц"
   defp balance_description(<<"206", _::binary>>), do: "Срочные вклады физических лиц"
-  defp balance_description(<<"226", _::binary>>), do: "Целевые средства (оплата авто, контракта и др.)"
+
+  defp balance_description(<<"226", _::binary>>),
+    do: "Целевые средства (оплата авто, контракта и др.)"
+
   defp balance_description(code), do: "Балансовый счёт #{code} (план счетов ЦБ Узбекистана)"
 
   # ── Currency descriptions (ISO 4217) ──────────────────────────────────────
@@ -107,13 +130,16 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
   @account_groups [5, 3, 1, 8, 3]
 
   defp format_account(""), do: ""
+
   defp format_account(account) do
     digits = String.graphemes(account)
+
     {parts, _} =
       Enum.reduce(@account_groups, {[], digits}, fn size, {acc, rest} ->
         {chunk, remaining} = Enum.split(rest, size)
         if chunk == [], do: {acc, remaining}, else: {acc ++ [Enum.join(chunk)], remaining}
       end)
+
     Enum.join(parts, " ")
   end
 
@@ -129,7 +155,6 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
     ~H"""
     <div class="min-h-screen bg-gray-50 p-4">
       <div class="w-full bg-white rounded-2xl shadow-md p-8">
-
         <a href={~p"/"} class="block text-sm text-blue-600 hover:underline mb-4">← На главную</a>
 
         <h1 class="text-2xl font-bold text-gray-800 text-center mb-1">
@@ -152,7 +177,7 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
                 title={ex.hint}
                 class="text-xs px-3 py-1.5 rounded-full border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:border-blue-400 transition"
               >
-                <%= ex.label %>
+                {ex.label}
               </button>
             <% end %>
           </div>
@@ -165,8 +190,12 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
                 МФО <span class="text-gray-400">(5 цифр)</span>
               </label>
               <input
-                type="text" name="mfo" value={@mfo} maxlength="5"
-                placeholder="00444" autocomplete="off"
+                type="text"
+                name="mfo"
+                value={@mfo}
+                maxlength="5"
+                placeholder="00444"
+                autocomplete="off"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 font-mono text-base tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -175,9 +204,14 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
                 Номер счёта <span class="text-gray-400">(20 цифр)</span>
               </label>
               <input
-                type="text" name="account" value={format_account(@account)} maxlength="24"
-                placeholder="20208 000 K 12345678 001" autocomplete="off"
-                phx-hook="AccountNumberMask" id="account-input"
+                type="text"
+                name="account"
+                value={format_account(@account)}
+                maxlength="24"
+                placeholder="20208 000 K 12345678 001"
+                autocomplete="off"
+                phx-hook="AccountNumberMask"
+                id="account-input"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 font-mono text-base tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -193,7 +227,6 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
 
         <%= if @breakdown do %>
           <div class="mt-6 border border-gray-200 rounded-xl overflow-hidden text-sm">
-
             <%!-- Segmented visual display: CCCCCVVVKSSSSSSSSNNN --%>
             <div class="bg-gray-50 px-4 py-3 font-mono text-center overflow-x-auto">
               <div class="text-xs text-gray-400 mb-1 tracking-widest select-none">
@@ -202,28 +235,28 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
               <div class="flex divide-x divide-gray-200 min-w-max mx-auto w-fit">
                 <div class="pr-3">
                   <div class="text-xs text-gray-400 mb-0.5">1–5 · Баланс</div>
-                  <div class="font-bold text-indigo-700"><%= @breakdown.balance_code %></div>
+                  <div class="font-bold text-indigo-700">{@breakdown.balance_code}</div>
                 </div>
                 <div class="px-3">
                   <div class="text-xs text-gray-400 mb-0.5">6–8 · Валюта</div>
                   <div class="font-bold text-blue-700">
-                    <%= @breakdown.currency_code %>
-                    <span class="text-xs font-normal text-blue-500">(<%= @breakdown.currency_iso %>)</span>
+                    {@breakdown.currency_code}
+                    <span class="text-xs font-normal text-blue-500">({@breakdown.currency_iso})</span>
                   </div>
                 </div>
                 <div class="px-3">
                   <div class="text-xs text-gray-400 mb-0.5">9 · Ключ</div>
                   <div class={"font-bold #{if @breakdown.key_valid, do: "text-green-600", else: "text-red-600"}"}>
-                    <%= @breakdown.key_digit %>
+                    {@breakdown.key_digit}
                   </div>
                 </div>
                 <div class="px-3">
                   <div class="text-xs text-gray-400 mb-0.5">10–17 · Клиент</div>
-                  <div class="font-bold text-gray-800 tracking-wider"><%= @breakdown.client_code %></div>
+                  <div class="font-bold text-gray-800 tracking-wider">{@breakdown.client_code}</div>
                 </div>
                 <div class="pl-3">
                   <div class="text-xs text-gray-400 mb-0.5">18–20 · №</div>
-                  <div class="font-bold text-gray-800"><%= @breakdown.seq %></div>
+                  <div class="font-bold text-gray-800">{@breakdown.seq}</div>
                 </div>
               </div>
             </div>
@@ -233,17 +266,16 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
               <%= if @breakdown.key_valid do %>
                 ✓ Счёт корректен
               <% else %>
-                ✗ Неверный контрольный ключ — ожидался <%= @breakdown.calculated_key %>
+                ✗ Неверный контрольный ключ — ожидался {@breakdown.calculated_key}
               <% end %>
             </div>
 
             <%!-- Field details --%>
             <dl class="divide-y divide-gray-100">
-
               <div class="px-4 py-3">
                 <dt class="font-medium text-gray-700">
                   МФО — код филиала банка
-                  <code class="ml-2 bg-gray-100 px-1 rounded text-xs"><%= @breakdown.mfo %></code>
+                  <code class="ml-2 bg-gray-100 px-1 rounded text-xs">{@breakdown.mfo}</code>
                 </dt>
                 <dd class="mt-0.5 text-gray-500">
                   Идентифицирует конкретный филиал банка в системе ЦБ Узбекистана.
@@ -254,24 +286,26 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
               <div class="px-4 py-3">
                 <dt class="font-medium text-gray-700">
                   CCCCC · Разряды 1–5 — Балансовый счёт
-                  <code class="ml-2 bg-gray-100 px-1 rounded text-xs"><%= @breakdown.balance_code %></code>
+                  <code class="ml-2 bg-gray-100 px-1 rounded text-xs">{@breakdown.balance_code}</code>
                 </dt>
-                <dd class="mt-0.5 text-gray-500"><%= @breakdown.balance_desc %></dd>
+                <dd class="mt-0.5 text-gray-500">{@breakdown.balance_desc}</dd>
               </div>
 
               <div class="px-4 py-3">
                 <dt class="font-medium text-gray-700">
                   VVV · Разряды 6–8 — Код валюты
-                  <code class="ml-2 bg-gray-100 px-1 rounded text-xs"><%= @breakdown.currency_code %></code>
+                  <code class="ml-2 bg-gray-100 px-1 rounded text-xs">
+                    {@breakdown.currency_code}
+                  </code>
                 </dt>
-                <dd class="mt-0.5 text-gray-500"><%= @breakdown.currency_desc %></dd>
+                <dd class="mt-0.5 text-gray-500">{@breakdown.currency_desc}</dd>
               </div>
 
               <div class="px-4 py-3">
                 <dt class="font-medium text-gray-700">
                   K · Разряд 9 — Контрольный ключ
                   <code class={"ml-2 px-1 rounded text-xs #{if @breakdown.key_valid, do: "bg-green-100 text-green-700", else: "bg-red-100 text-red-700"}"}>
-                    <%= @breakdown.key_digit %>
+                    {@breakdown.key_digit}
                   </code>
                   <%= if @breakdown.key_valid do %>
                     <span class="ml-1 text-green-600 text-xs">✓ верный</span>
@@ -291,7 +325,7 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
               <div class="px-4 py-3">
                 <dt class="font-medium text-gray-700">
                   SSSSSSSS · Разряды 10–17 — Уникальный код клиента
-                  <code class="ml-2 bg-gray-100 px-1 rounded text-xs"><%= @breakdown.client_code %></code>
+                  <code class="ml-2 bg-gray-100 px-1 rounded text-xs">{@breakdown.client_code}</code>
                 </dt>
                 <dd class="mt-0.5 text-gray-500">
                   Уникальный 8-значный идентификатор клиента внутри банка.
@@ -302,18 +336,16 @@ defmodule Elixir4absValidatorsWeb.AccountValidatorLive do
               <div class="px-4 py-3">
                 <dt class="font-medium text-gray-700">
                   NNN · Разряды 18–20 — Порядковый номер счёта
-                  <code class="ml-2 bg-gray-100 px-1 rounded text-xs"><%= @breakdown.seq %></code>
+                  <code class="ml-2 bg-gray-100 px-1 rounded text-xs">{@breakdown.seq}</code>
                 </dt>
                 <dd class="mt-0.5 text-gray-500">
                   Порядковый номер конкретного счёта клиента в рамках данного балансового счёта и валюты.
                   Позволяет клиенту иметь несколько счетов одного типа.
                 </dd>
               </div>
-
             </dl>
           </div>
         <% end %>
-
       </div>
     </div>
     """

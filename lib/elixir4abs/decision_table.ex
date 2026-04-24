@@ -29,7 +29,7 @@ defmodule Elixir4ABS.DecisionTable do
   defmacro __using__(_opts) do
     quote do
       import Elixir4ABS.DecisionTable, only: [decision_table: 3, rule: 1]
-      Module.register_attribute(__MODULE__, :__dt_rules__,      accumulate: true)
+      Module.register_attribute(__MODULE__, :__dt_rules__, accumulate: true)
       Module.register_attribute(__MODULE__, :__dt_rules_meta__, accumulate: true)
       @before_compile Elixir4ABS.DecisionTable
     end
@@ -43,12 +43,12 @@ defmodule Elixir4ABS.DecisionTable do
   - `outputs` — список атомов выходных полей (действия)
   """
   defmacro decision_table(name, opts, do: block) do
-    inputs  = Keyword.fetch!(opts, :inputs)
+    inputs = Keyword.fetch!(opts, :inputs)
     outputs = Keyword.fetch!(opts, :outputs)
 
     quote do
-      Module.put_attribute(__MODULE__, :__dt_name__,    unquote(name))
-      Module.put_attribute(__MODULE__, :__dt_inputs__,  unquote(inputs))
+      Module.put_attribute(__MODULE__, :__dt_name__, unquote(name))
+      Module.put_attribute(__MODULE__, :__dt_inputs__, unquote(inputs))
       Module.put_attribute(__MODULE__, :__dt_outputs__, unquote(outputs))
       unquote(block)
     end
@@ -64,7 +64,7 @@ defmodule Elixir4ABS.DecisionTable do
   """
   defmacro rule(spec) when is_list(spec) do
     quote do
-      @__dt_rules__      unquote(spec)
+      @__dt_rules__ unquote(spec)
       @__dt_rules_meta__ unquote(spec)
     end
   end
@@ -72,9 +72,9 @@ defmodule Elixir4ABS.DecisionTable do
   # Генерируем функциональные клаузы после того как собраны все правила.
   @doc false
   defmacro __before_compile__(env) do
-    rules   = env.module |> Module.get_attribute(:__dt_rules__) |> Enum.reverse()
-    name    = Module.get_attribute(env.module, :__dt_name__)
-    inputs  = Module.get_attribute(env.module, :__dt_inputs__)
+    rules = env.module |> Module.get_attribute(:__dt_rules__) |> Enum.reverse()
+    name = Module.get_attribute(env.module, :__dt_name__)
+    inputs = Module.get_attribute(env.module, :__dt_inputs__)
     outputs = Module.get_attribute(env.module, :__dt_outputs__)
 
     clauses = Enum.map(rules, &build_clause(name, inputs, outputs, &1))

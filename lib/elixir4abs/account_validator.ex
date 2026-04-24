@@ -44,7 +44,7 @@ defmodule Elixir4ABS.AccountValidator do
       |> Enum.map(fn [a, b] -> a * b end)
       |> Enum.sum()
 
-    total = pairs_sum + (List.last(digits) * 9)
+    total = pairs_sum + List.last(digits) * 9
     rem = rem(total, 11)
 
     case rem do

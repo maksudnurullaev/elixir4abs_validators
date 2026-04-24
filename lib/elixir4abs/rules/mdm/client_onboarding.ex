@@ -21,12 +21,12 @@ defmodule Elixir4ABS.Rules.MDM.ClientOnboarding do
   """
 
   decision_table :decide,
-    inputs:  [:pinfl_valid, :passport_valid, :face_match, :blacklist_match],
+    inputs:  [:pinfl_valid,   :passport_valid, :face_match, :blacklist_match],
     outputs: [:assign_active, :assign_pending, :block_profile, :notify_passport] do
-    #           pinfl  passport  face   blacklist  active  pending block   notify
-    rule       [true,  true,     :any,  true,      false,  false,  true,   false]  # П4 AML Риск (приоритет)
-    rule       [true,  true,     true,  false,     true,   false,  false,  false]  # П1 Успех
-    rule       [false, true,     true,  false,     false,  true,   false,  false]  # П2 Данные МВД
-    rule       [true,  false,    true,  false,     false,  false,  false,  true ]  # П3 Просрочка паспорта
+    #           pinfl_valid  passport_valid  face_match  blacklist   active   pending  block    notify
+    rule [true,   true,    :any,   true,   false,  false,  true,   false]  # П4 AML Риск (приоритет)
+    rule [true,   true,    true,   false,  true,   false,  false,  false]  # П1 Успех
+    rule [false,  true,    true,   false,  false,  true,   false,  false]  # П2 Данные МВД
+    rule [true,   false,   true,   false,  false,  false,  false,  true ]  # П3 Просрочка паспорта
   end
 end

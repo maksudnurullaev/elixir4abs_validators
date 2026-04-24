@@ -50,6 +50,7 @@ defmodule Elixir4ABS.Swift.Parser.Pacs008Test do
 
     test "поля nullable равны nil когда отсутствуют" do
       assert {:ok, result} = Pacs008.parse(load("pacs008_valid_multi.xml"))
+
       # вторая транзакция не имеет debtor_name, creditor_name, remittance_info
       txn = Enum.at(result.transactions, 1)
       assert txn.debtor_name == nil
@@ -131,7 +132,7 @@ defmodule Elixir4ABS.Swift.Parser.Pacs008Test do
   describe "property-based" do
     @tag capture_log: true
     property "случайный binary всегда возвращает {:error, _}" do
-      check all bin <- binary() do
+      check all(bin <- binary()) do
         result = Pacs008.parse(bin)
 
         assert match?({:error, :invalid_xml}, result) or

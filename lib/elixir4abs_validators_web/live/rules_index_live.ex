@@ -13,7 +13,6 @@ defmodule Elixir4absValidatorsWeb.RulesIndexLive do
     ~H"""
     <div class="min-h-screen bg-gray-50 p-6">
       <div class="w-full">
-
         <a href={~p"/"} class="block text-sm text-blue-600 hover:underline mb-4">← На главную</a>
         <h1 class="text-2xl font-bold text-gray-800 mb-1">Таблицы решений</h1>
         <p class="text-sm text-gray-500 mb-6">
@@ -28,17 +27,16 @@ defmodule Elixir4absValidatorsWeb.RulesIndexLive do
             >
               <div class="flex items-center justify-between">
                 <div>
-                  <div class="font-semibold text-gray-800"><%= cfg.title %></div>
-                  <div class="text-sm text-gray-500 mt-0.5"><%= cfg.description %></div>
+                  <div class="font-semibold text-gray-800">{cfg.title}</div>
+                  <div class="text-sm text-gray-500 mt-0.5">{cfg.description}</div>
                 </div>
                 <div class="text-xs text-gray-400 font-mono bg-gray-50 px-2 py-1 rounded">
-                  <%= length(rule_count(cfg.module)) %> правил
+                  {length(rule_count(cfg.module))} правил
                 </div>
               </div>
             </a>
           <% end %>
         </div>
-
       </div>
     </div>
     """

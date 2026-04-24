@@ -6,7 +6,7 @@ defmodule Elixir4ABS.AccountValidatorTest do
   describe "calculate_k14/1" do
     test "computes expected key for known sequence" do
       # Example from README: we compose a 24-digit sequence and compute manually
-      seq = [4,0,0,4,4, 2,0,2,0,8, 0,0,1, 1,2,3,4,5,6,7,8,0,0,1]
+      seq = [4, 0, 0, 4, 4, 2, 0, 2, 0, 8, 0, 0, 1, 1, 2, 3, 4, 5, 6, 7, 8, 0, 0, 1]
       # we don't know expected numeric result from text, but we can assert 0..9
       key = AccountValidator.calculate_k14(seq)
       assert key in 0..9
@@ -18,7 +18,8 @@ defmodule Elixir4ABS.AccountValidatorTest do
       # Construct a realistic example: mfo 00444, account with digit 9th computed
       mfo = "00444"
       # assemble a 20-digit account where we set the 9th digit later
-      base = "20208000112345678001"  # placeholder; we will recompute
+      # placeholder; we will recompute
+      base = "20208000112345678001"
       acc_digits = base |> String.graphemes() |> Enum.map(&String.to_integer/1)
       {prefix, [_k | suffix]} = Enum.split(acc_digits, 8)
       seq24 = digits_from_string(mfo) ++ prefix ++ suffix

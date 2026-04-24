@@ -11,10 +11,10 @@ defmodule Elixir4ABS.QrPayment do
   """
 
   @ttl_options [
-    {300,   "5 минут"},
-    {600,   "10 минут"},
-    {1800,  "30 минут"},
-    {3600,  "1 час"},
+    {300, "5 минут"},
+    {600, "10 минут"},
+    {1800, "30 минут"},
+    {3600, "1 час"},
     {86400, "24 часа"}
   ]
 
@@ -24,8 +24,8 @@ defmodule Elixir4ABS.QrPayment do
     {"978", "EUR — евро"}
   ]
 
-  def ttl_options,  do: @ttl_options
-  def currencies,   do: @currencies
+  def ttl_options, do: @ttl_options
+  def currencies, do: @currencies
 
   # ── Transaction ID ──────────────────────────────────────────────────────────
 
@@ -35,7 +35,7 @@ defmodule Elixir4ABS.QrPayment do
   """
   @spec generate_txid() :: String.t()
   def generate_txid do
-    ts     = DateTime.utc_now() |> DateTime.to_unix()
+    ts = DateTime.utc_now() |> DateTime.to_unix()
     suffix = :crypto.strong_rand_bytes(4) |> Base.encode16(case: :lower)
     "TXN-#{ts}-#{suffix}"
   end
@@ -47,17 +47,26 @@ defmodule Elixir4ABS.QrPayment do
   Поля: merchant_id, acc, mfo, amount (в тийинах), ccy (ISO 4217), txid, exp (ISO 8601).
   """
   @spec build_payload(map()) :: String.t()
-  def build_payload(%{merchant_id: merchant_id, account: account, mfo: mfo,
-                      amount: amount, currency: ccy, txid: txid, ttl: _ttl}) do
-    params = URI.encode_query([
-      {"merchant_id", merchant_id},
-      {"acc",         account},
-      {"mfo",         mfo},
-      {"amount",      to_string(amount)},
-      {"ccy",         ccy},
-      {"txid",        txid} #,
-      # {"exp",         exp} - не все банки поддерживают поле exp, поэтому пока убираем его из полезной нагрузки
-    ])
+  def build_payload(%{
+        merchant_id: merchant_id,
+        account: account,
+        mfo: mfo,
+        amount: amount,
+        currency: ccy,
+        txid: txid,
+        ttl: _ttl
+      }) do
+    params =
+      URI.encode_query([
+        {"merchant_id", merchant_id},
+        {"acc", account},
+        {"mfo", mfo},
+        {"amount", to_string(amount)},
+        {"ccy", ccy},
+        # ,
+        {"txid", txid}
+        # {"exp",         exp} - не все банки поддерживают поле exp, поэтому пока убираем его из полезной нагрузки
+      ])
 
     "APEX://pay?" <> params
   end
@@ -83,7 +92,7 @@ defmodule Elixir4ABS.QrPayment do
   @spec to_svg(String.t(), keyword()) :: {:ok, String.t()} | {:error, term()}
   def to_svg(payload, opts \\ []) do
     width = Keyword.get(opts, :width, 280)
-    svg   = payload |> EQRCode.encode() |> EQRCode.svg(width: width)
+    svg = payload |> EQRCode.encode() |> EQRCode.svg(width: width)
     {:ok, svg}
   rescue
     e -> {:error, e}
@@ -103,13 +112,14 @@ defmodule Elixir4ABS.QrPayment do
   def format_amount(amount) when is_binary(amount) do
     case String.split(amount, ".") do
       [int_part, dec_part] -> format_int_digits(int_part) <> "," <> dec_part
-      [int_part]           -> format_int_digits(int_part)
+      [int_part] -> format_int_digits(int_part)
     end
   end
 
   def format_amount(_), do: "0"
 
   defp format_int_digits(""), do: "0"
+
   defp format_int_digits(str) do
     str
     |> String.graphemes()
@@ -126,5 +136,5 @@ defmodule Elixir4ABS.QrPayment do
   def currency_label("860"), do: "UZS"
   def currency_label("840"), do: "USD"
   def currency_label("978"), do: "EUR"
-  def currency_label(code),  do: code
+  def currency_label(code), do: code
 end
