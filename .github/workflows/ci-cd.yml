@@ -93,21 +93,21 @@ jobs:
         run: mix assets.deploy
 
       - name: Build release
-        run: mix release --path /opt/elixir4dev --overwrite
+        run: mix release
         env:
           SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE }}
           PHX_HOST: elixir4dev.uz 
 
-      # - name: Upload release to server
-      #   uses: appleboy/scp-action@v0.1.7
-      #   with:
-      #     host: ${{ secrets.SERVER_HOST }}
-      #     username: ${{ secrets.SERVER_USER }}
-      #     key: ${{ secrets.SERVER_SSH_KEY }}
-      #     port: ${{ secrets.SSH_PORT || 22 }}
-      #     source: "_build/prod/rel/elixir4abs_validators"
-      #     target: "/opt/elixir4dev/releases/${{ github.sha }}"
-      #     strip_components: 3
+      - name: Upload release to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          source: "_build/prod/rel/elixir4abs_validators"
+          target: "/opt/elixir4dev/releases/${{ github.sha }}"
+          strip_components: 3
 
       # - name: Restart application
       #   uses: appleboy/ssh-action@v1.0.3
