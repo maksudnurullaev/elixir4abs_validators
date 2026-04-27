@@ -14,6 +14,10 @@ defmodule Elixir4absValidatorsWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :require_auth do
+    plug Elixir4absValidatorsWeb.Plugs.RequireAuth
+  end
+
   scope "/", Elixir4absValidatorsWeb do
     pipe_through :api
     get "/health", HealthController, :check
@@ -21,6 +25,13 @@ defmodule Elixir4absValidatorsWeb.Router do
 
   scope "/", Elixir4absValidatorsWeb do
     pipe_through :browser
+
+    get "/lock", AuthController, :new
+    post "/lock", AuthController, :create
+  end
+
+  scope "/", Elixir4absValidatorsWeb do
+    pipe_through [:browser, :require_auth]
 
     live "/", HomeLive
     live "/validators/account", AccountValidatorLive

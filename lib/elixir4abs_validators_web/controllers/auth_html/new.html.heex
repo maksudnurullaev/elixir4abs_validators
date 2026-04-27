@@ -1,0 +1,33 @@
+<div class="min-h-screen bg-gray-50 flex items-center justify-center">
+  <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-10 w-full max-w-sm text-center">
+    <div class="text-4xl mb-4">🚧</div>
+    <h1 class="text-xl font-bold text-gray-800 mb-2">Page is under construction</h1>
+    <p class="text-sm text-gray-500 mb-8">
+      This page is not yet publicly available.<br />Enter the access password to continue.
+    </p>
+
+    <form action="/lock" method="post" class="space-y-4">
+      <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
+      <input
+        type="password"
+        name="password"
+        placeholder="Password"
+        autocomplete="off"
+        autofocus
+        class={[
+          "w-full px-4 py-2 rounded-lg border text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400",
+          if(@error, do: "border-red-400 bg-red-50", else: "border-gray-300")
+        ]}
+      />
+      <%= if @error do %>
+        <p class="text-xs text-red-500 text-left">Incorrect password. Try again.</p>
+      <% end %>
+      <button
+        type="submit"
+        class="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 rounded-lg transition"
+      >
+        Enter
+      </button>
+    </form>
+  </div>
+</div>
