@@ -28,6 +28,7 @@ defmodule Elixir4absValidatorsWeb.Router do
 
     get "/lock", AuthController, :new
     post "/lock", AuthController, :create
+    get "/logout", AuthController, :delete
   end
 
   scope "/", Elixir4absValidatorsWeb do

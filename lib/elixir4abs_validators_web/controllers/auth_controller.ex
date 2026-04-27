@@ -6,6 +6,12 @@ defmodule Elixir4absValidatorsWeb.AuthController do
     render(conn, :new, error: false)
   end
 
+  def delete(conn, _params) do
+    conn
+    |> clear_session()
+    |> redirect(to: "/lock")
+  end
+
   def create(conn, %{"password" => password}) do
     today = Date.utc_today() |> Calendar.strftime("%Y%m%d")
 
