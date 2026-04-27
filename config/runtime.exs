@@ -1,5 +1,9 @@
 import Config
 
+if System.get_env("PHX_SERVER") do
+  config :elixir4abs_validators,  Elixir4absValidatorsWeb.Endpoint, server: true
+end
+
 if config_env() == :prod do
   secret_key_base =
     System.get_env("SECRET_KEY_BASE") ||
