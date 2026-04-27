@@ -2,9 +2,9 @@ name: CI/CD
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
   test:
@@ -13,8 +13,8 @@ jobs:
 
     strategy:
       matrix:
-        elixir: ["1.17"]
-        otp: ["27"]
+        elixir: [ "1.17" ]
+        otp: [ "27" ]
 
     env:
       MIX_ENV: test
@@ -33,14 +33,16 @@ jobs:
         id: deps-cache
         with:
           path: deps
-          key: deps-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles('mix.lock') }}
+          key: deps-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{
+            hashFiles('mix.lock') }}
           restore-keys: deps-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-
 
       - name: Restore build cache
         uses: actions/cache@v4
         with:
           path: _build
-          key: build-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles('mix.lock') }}
+          key: build-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{
+            hashFiles('mix.lock') }}
           restore-keys: build-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-
 
       - name: Install dependencies
@@ -64,7 +66,7 @@ jobs:
 
     env:
       MIX_ENV: prod
-      PHX_SERVER: true 
+      PHX_SERVER: true
       PORT: 4002
       LOG_LEVEL: info
 
@@ -94,9 +96,9 @@ jobs:
 
       - name: Build release
         run: mix release
-        env:
-          SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE }}
-          PHX_HOST: elixir4dev.uz 
+        # env:
+        #   SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE }}
+        #   PHX_HOST: elixir4dev.uz 
       - name: Upload release to server
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -108,15 +110,26 @@ jobs:
           target: "/opt/elixir4dev/releases/${{ github.sha }}"
           strip_components: 3
 
-      # - name: Restart application
-      #   uses: appleboy/ssh-action@v1.0.3
-      #   with:
-      #     host: ${{ secrets.SSH_HOST }}
-      #     username: ${{ secrets.SSH_USER }}
-      #     key: ${{ secrets.SSH_KEY }}
-      #     port: ${{ secrets.SSH_PORT || 22 }}
-      #     script: |
-      #       ln -sfn /opt/elixir4abs_validators/releases/${{ github.sha }} /opt/elixir4abs_validators/current
-      #       sudo systemctl restart elixir4abs_validators
-      #       sleep 5
-      #       curl -sf http://localhost:${PORT:-4000}/health || (echo "Health check failed" && exit 1)
+      - name: Restart application
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            ln -sfn /opt/elixir4abs_validators/releases/${{ github.sha }} /opt/elixir4dev/current
+            # Останавливаем текущий сервис (если запущен)
+            if /opt/elixir4dev/current/bin/elixir4abs_validators pid > /dev/null 2>&1; then
+              /opt/elixir4dev/current/bin/elixir4abs_validators stop
+              for i in $(seq 1 30); do
+                /opt/elixir4dev/current/bin/elixir4abs_validators pid > /dev/null 2>&1 || break
+                echo "Waiting for process to stop... ($i/30)"
+                sleep 1
+              done
+            fi
+
+            # Запускаем сервис
+            /opt/elixir4dev/current/bin/elixir4abs_validators daemon
+            sleep 5
+            curl -sf http://localhost:${PORT}/health || (echo "Health check failed" && exit 1)
