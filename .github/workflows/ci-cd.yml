@@ -122,7 +122,7 @@ jobs:
             # Устанавливаем переменные окружения
             source ~/.profile
             # Создаем символическую ссылку на новую версию
-            ln -sfn /opt/elixir4abs_validators/releases/${{ github.sha }}/elixir4abs_validators /opt/elixir4dev/current
+            ln -sfn /opt/elixir4dev/releases/${{ github.sha }}/elixir4abs_validators /opt/elixir4dev/current
             # Останавливаем текущий сервис (если запущен)
             if /opt/elixir4dev/current/bin/elixir4abs_validators pid > /dev/null 2>&1; then
               /opt/elixir4dev/current/bin/elixir4abs_validators stop
