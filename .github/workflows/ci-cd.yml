@@ -64,6 +64,9 @@ jobs:
     needs: test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
+    env:
+      MIX_ENV: prod
+
     steps:
       - uses: actions/checkout@v4
 
@@ -90,9 +93,9 @@ jobs:
 
       - name: Build release
         run: mix release
-        # env:
-        #   SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE }}
-        #   PHX_HOST: elixir4dev.uz 
+        env:
+          SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE }}
+          PHX_HOST: elixir4dev.uz 
       - name: Upload release to server
         uses: appleboy/scp-action@v0.1.7
         with:
