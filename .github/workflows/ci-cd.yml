@@ -64,12 +64,6 @@ jobs:
     needs: test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
-    env:
-      MIX_ENV: prod
-      PHX_SERVER: true
-      PORT: 4002
-      LOG_LEVEL: info
-
     steps:
       - uses: actions/checkout@v4
 
