@@ -97,7 +97,12 @@ jobs:
         env:
           SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE }}
           PHX_HOST: elixir4dev.uz 
-
+      - name: Test secret values
+        run: |
+            echo "host: ${{ secrets.SERVER_HOST }}"
+            echo "user: ${{ secrets.SERVER_USER }}"
+            echo "ssh key: ${{ secrets.SERVER_SSH_KEY }}"
+            echo "port: ${{ secrets.SSH_PORT || 22 }}"
       - name: Upload release to server
         uses: appleboy/scp-action@v0.1.7
         with:
