@@ -95,7 +95,7 @@ jobs:
         run: mix release
         env:
           SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE }}
-          PHX_HOST: elixir4dev.uz 
+          PHX_HOST: elixirdev.uz
       - name: Upload release to server
         uses: appleboy/scp-action@v0.1.7
         with:
