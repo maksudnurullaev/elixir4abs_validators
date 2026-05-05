@@ -20,7 +20,8 @@ defmodule Elixir4ABS.ContractPayment do
       {"X-Api-Key", api_key},
       {"X-Signature", sig},
       {"X-Timestamp", Integer.to_string(ts)},
-      {"Content-Type", "application/json"}
+      {"Content-Type", "application/json"},
+      {"Accept", "application/json"}
     ]
   end
 
