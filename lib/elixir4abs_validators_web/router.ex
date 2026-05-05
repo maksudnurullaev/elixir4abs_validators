@@ -38,6 +38,7 @@ defmodule Elixir4absValidatorsWeb.Router do
     live "/validators/account", AccountValidatorLive
     live "/validators/swift-pacs008", SwiftPacs008Live
     live "/validators/qr-payment", QrPaymentLive
+    live "/validators/contract-payment", ContractPaymentLive
 
     live "/rules", RulesIndexLive
     live "/rules/:ruleset", RulesViewerLive

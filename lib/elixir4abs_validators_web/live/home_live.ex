@@ -57,6 +57,21 @@ defmodule Elixir4absValidatorsWeb.HomeLive do
         ]
       },
       %{
+        title: "TIU Contract Payments — APEX",
+        description:
+          "Интерактивный тестировщик API billing.mystudent.uz для оплаты образовательных контрактов. " <>
+            "Строит HMAC-SHA256 подписанные запросы в реальном времени и выполняет их напрямую. " <>
+            "Покрывает полный happy path: GetContract → CreatePayment → Confirm → GetStatus.",
+        href: ~p"/validators/contract-payment",
+        badge: "TIU / APEX",
+        items: [
+          "HMAC-SHA256 · X-Api-Key · X-Timestamp",
+          "GetContract — контракт студента по ПИНФЛ",
+          "HandlePayment — создание, подтверждение, отмена",
+          "GetPaymentStatus — статусы 1..5 (ACCEPTED→TRANSFERRED)"
+        ]
+      },
+      %{
         title: "Таблицы решений",
         description:
           "Бизнес-правила банка, скомпилированные из Elixir-макросов в байткод BEAM. " <>
