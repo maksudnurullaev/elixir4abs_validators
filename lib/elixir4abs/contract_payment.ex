@@ -53,6 +53,7 @@ defmodule Elixir4ABS.ContractPayment do
     }
 
     body_compact = Jason.encode!(body_map)
+
     %{
       method: "POST",
       url: @base_url <> "/PaymentGateway/HandlePayment",
@@ -65,6 +66,7 @@ defmodule Elixir4ABS.ContractPayment do
   def build_action(txn_id, action, api_key, secret_key) do
     body_map = %{"transactionId" => txn_id, "action" => action, "detail" => nil}
     body_compact = Jason.encode!(body_map)
+
     %{
       method: "POST",
       url: @base_url <> "/PaymentGateway/HandlePayment",
@@ -118,7 +120,8 @@ defmodule Elixir4ABS.ContractPayment do
     :ok
   end
 
-  defp without_content_type(headers), do: Enum.reject(headers, fn {k, _} -> k == "Content-Type" end)
+  defp without_content_type(headers),
+    do: Enum.reject(headers, fn {k, _} -> k == "Content-Type" end)
 
   defp to_erl_headers(headers) do
     Enum.map(headers, fn {k, v} -> {String.to_charlist(k), String.to_charlist(v)} end)
