@@ -17,7 +17,7 @@ defmodule Elixir4absValidators.MixProject do
   def application do
     [
       mod: {Elixir4absValidators.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :inets, :ssl]
     ]
   end
 
