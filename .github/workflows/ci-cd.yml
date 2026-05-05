@@ -94,7 +94,7 @@ jobs:
       - name: Build release
         run: mix release
 
-        - name: Upload release to server
+      - name: Upload release to server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
