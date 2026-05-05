@@ -10,7 +10,7 @@ if config_env() == :prod do
       raise "environment variable SECRET_KEY_BASE is missing. " <>
               "You can generate one with: mix phx.gen.secret"
 
-  host = System.get_env("PHX_HOST") || "example.com"
+  host = System.get_env("PHX_HOST") || "elixirdev.uz"
   port = String.to_integer(System.get_env("PORT") || "4000")
 
   config :elixir4abs_validators, Elixir4absValidatorsWeb.Endpoint,
